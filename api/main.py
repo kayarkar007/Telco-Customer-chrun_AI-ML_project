@@ -1,53 +1,52 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
 import joblib
-import numpy as np
 import os
-import json
 import pandas as pd
 
 app = FastAPI()
 
+# Load pipeline
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+model_path = os.path.join(BASE_DIR, "models", "pipeline.pkl")
 
-# Load model
-model_path = os.path.join(BASE_DIR, "models", "churn_model.pkl")
 model = joblib.load(model_path)
 
-# Load feature columns
-columns_path = os.path.join(BASE_DIR, "models", "columns.json")
 
-with open(columns_path, "r") as f:
-    model_columns = json.load(f)
+# Input schema (VALIDATION)
+class CustomerData(BaseModel):
+    gender: str
+    SeniorCitizen: int
+    Partner: str
+    Dependents: str
+    tenure: int
+    PhoneService: str
+    MultipleLines: str
+    InternetService: str
+    OnlineSecurity: str
+    OnlineBackup: str
+    DeviceProtection: str
+    TechSupport: str
+    StreamingTV: str
+    StreamingMovies: str
+    Contract: str
+    PaperlessBilling: str
+    PaymentMethod: str
+    MonthlyCharges: float
+    TotalCharges: float
 
 
 @app.get("/")
 def home():
-    return {"message": "Churn Model Running"}
+    return {"message": "Churn Prediction API (Pipeline Version)"}
 
 
-@app.get("/predict")
-def predict(
-    tenure: int,
-    MonthlyCharges: float,
-    TotalCharges: float,
-    SeniorCitizen: int = 0
-):
-    # Create base input
-    input_data = {
-        "tenure": tenure,
-        "MonthlyCharges": MonthlyCharges,
-        "TotalCharges": TotalCharges,
-        "SeniorCitizen": SeniorCitizen
-    }
+@app.post("/predict")
+def predict(data: CustomerData):
+    # Convert input to dataframe
+    input_df = pd.DataFrame([data.dict()])
 
-    # Convert to dataframe
-    df = pd.DataFrame([input_data])
-
-    # Align columns with training
-    df = pd.get_dummies(df)
-
-    df = df.reindex(columns=model_columns, fill_value=0)
-
-    prediction = model.predict(df)[0]
+    # Predict
+    prediction = model.predict(input_df)[0]
 
     return {"churn": int(prediction)}
