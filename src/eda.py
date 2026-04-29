@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("../data/processed/clean.csv")
+df = pd.read_csv("../data/clean_data/clean.csv")
 
 print(df["Churn"].value_counts(normalize=True))
 
