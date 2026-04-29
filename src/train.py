@@ -12,7 +12,7 @@ from sklearn.preprocessing import OneHotEncoder
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Load data
-data_path = os.path.join(BASE_DIR, "data", "processed", "clean.csv")
+data_path = os.path.join(BASE_DIR, "data", "clean_data", "clean.csv")
 df = pd.read_csv(data_path)
 
 # Separate features and target
@@ -49,6 +49,6 @@ pipeline.fit(X_train, y_train)
 model_path = os.path.join(BASE_DIR, "models", "pipeline.pkl")
 joblib.dump(pipeline, model_path)
 
-print("Train Score:", pipeline.score(X_train, y_train))
-print("Test Score:", pipeline.score(X_test, y_test))
+print("Train Score:", pipeline.score(X_train, y_train)*100)
+print("Test Score:", pipeline.score(X_test, y_test)*100)
 print("Model saved:", model_path)
