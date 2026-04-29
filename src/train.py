@@ -28,7 +28,7 @@ columns_path = os.path.join(BASE_DIR, "models", "columns.json")
 
 with open(columns_path, "w") as f:
     json.dump(list(X.columns), f)
-    
+
 # Train
 model = RandomForestClassifier(n_estimators=100, max_depth=5)
 model.fit(X_train, y_train)
@@ -40,3 +40,14 @@ joblib.dump(model, model_path)
 print("Train Score:", model.score(X_train, y_train)*100)
 print("Test Score:", model.score(X_test, y_test)*100)
 print("Model saved at:", model_path)
+
+
+importances = model.feature_importances_
+features = X.columns
+
+importance_df = pd.DataFrame({
+    "feature": features,
+    "importance": importances
+}).sort_values(by="importance", ascending=False)
+
+print(importance_df.head(10))
